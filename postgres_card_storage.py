@@ -8,7 +8,7 @@ from exceptions import CantGetCard
 logger = logging.getLogger(__name__)
 
 
-class CardLibrary:
+class PostgresCardStorage:
     """Db abstraction layer"""
 
     def __init__(self, conn: connection) -> None:
