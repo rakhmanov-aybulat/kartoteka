@@ -3,7 +3,7 @@ import logging
 from psycopg2.extensions import connection
 
 from card import Card
-from exceptions import CantGetCard
+from exceptions import CantGetCard, CantGetCardTuple
 
 logger = logging.getLogger(__name__)
 
@@ -39,5 +39,14 @@ class PostgresCardStorage:
             raise CantGetCard
 
     def get_card_tuple(self) -> tuple[Card, ...]:
-        pass
+        try:
+            with self.conn as conn:
+                with conn.cursor() as cursor:
+                    query = 'SELECT * FROM cards;'
+                    cursor.execute(query)
+                    card_tuple = cursor.fetchall()
+                    card_tuple = tuple([Card(*card) for card in card_tuple])
+                    return card_tuple
+        except Exception:
+            raise CantGetCardTuple
 
