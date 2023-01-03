@@ -3,7 +3,7 @@ import logging
 from psycopg2.extensions import connection
 
 from card import Card
-from exceptions import CantGetCard, CantGetCardTuple
+from exceptions import CantAddCard, CantGetCard, CantGetCardTuple
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,25 @@ class PostgresCardStorage:
         self.conn = conn
 
     def add_card(self, card: Card) -> None:
-        pass
+        """
+        Takes an instance of the Card class with any ID and
+        adds it to the database
+        """
+        try:
+            with self.conn as conn:
+                with conn.cursor() as cursor:
+                    query = ('INSERT INTO cards (title, content, author, '
+                             'book_name, book_edition_number, '
+                             'year_of_book_publication, quote_page_number) '
+                             'VALUES(%s, %s, %s, %s, %s, %s, %s);')
+                    data = (card.title, card.content, card.author,
+                            card.book_name, card.book_edition_number,
+                            card.year_of_book_publication,
+                            card.quote_page_number)
+                    cursor.execute(query, data)
+        except Exception:
+            raise CantAddCard
+
 
     def remove_card(self, card: Card) -> None:
         pass
