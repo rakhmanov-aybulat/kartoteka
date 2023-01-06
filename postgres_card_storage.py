@@ -4,7 +4,7 @@ from psycopg2.extensions import connection
 
 from card import Card
 from exceptions import CantAddCard, CantUpdateCard, \
-    CantGetCard, CantGetCardTuple
+    CantGetCard, CantGetCardTuple, CantRemoveCard
 
 
 logger = logging.getLogger(__name__)
@@ -36,8 +36,14 @@ class PostgresCardStorage:
         except Exception:
             raise CantAddCard
 
-    def remove_card(self, card: Card) -> None:
-        pass
+    def remove_card(self, card_id: int) -> None:
+        try:
+            with self.conn as conn:
+                with conn.cursor() as cursor:
+                    query = 'DELETE FROM cards WHERE id = %s;'
+                    cursor.execute(query, (card_id,))
+        except Exception:
+            raise CantRemoveCard
 
     def update_card(self, card: Card) -> None:
         try:
